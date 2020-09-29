@@ -1,43 +1,39 @@
-#include <iostream>
-#include <thread>
-#include <chrono>
+/*!
+ * \file   torrenthandlinglogic.cpp
+ * \author Attila Krüpl dr.
+ * \date   29/09/2020
+ */
 
-#include <libtorrent/session.hpp>
-#include <libtorrent/add_torrent_params.hpp>
-#include <libtorrent/torrent_handle.hpp>
-#include <libtorrent/torrent_info.hpp>
-#include <libtorrent/alert_types.hpp>
-#include <libtorrent/magnet_uri.hpp>
+#include "stdafx.h"
 
+using namespace nTorrentLogic;
 using namespace lt;
-using namespace std;
 
-int main( int argc, char const* argv[] ) try
+nTorrentLogic::TorrentHandlingLogic::TorrentHandlingLogic( const std::string& aTorrentPath )
+    : mTorrentPath( aTorrentPath )
+{}
+
+void nTorrentLogic::TorrentHandlingLogic::DownloadTorrent()
 {
-    if ( argc != 2 ) {
-        cerr << "Usage: " << argv[0] << " <torrent_file_path>" << endl;
-        return 1;
-    }
-
     settings_pack       lSettingsPack;
                         lSettingsPack.set_int( settings_pack::alert_mask
                                              , alert_category::all );
     session             lSession( lSettingsPack );
     load_torrent_limits lLimits;
-    torrent_info        lTorrentInfo                 ( argv[1], lLimits );
+    torrent_info        lTorrentInfo                 ( mTorrentPath, lLimits );
     add_torrent_params  lTorrentParameters;
                         lTorrentParameters.ti        = std::make_shared<torrent_info>( lTorrentInfo );
                         lTorrentParameters.save_path = ".";
-    torrent_handle      lTorrentHandle               = lSession.add_torrent( move( lTorrentParameters ) );
+    torrent_handle      lTorrentHandle               = lSession.add_torrent( std::move( lTorrentParameters ) );
     bool                lLoopCondition               = true;
     while ( lLoopCondition )
     {
-        vector<alert*> lAlerts;
+        std::vector<alert*> lAlerts;
         lSession.pop_alerts( &lAlerts );
 
         for ( alert const* lAlert : lAlerts )
         {
-            cout << lAlert->message() << endl;
+            std::cout << lAlert->message() << std::endl;
             if ( alert_cast<torrent_finished_alert>( lAlert ) )
             {
                 lLoopCondition = false;
@@ -49,11 +45,13 @@ int main( int argc, char const* argv[] ) try
                 break;
             }
         }
-        this_thread::sleep_for( chrono::milliseconds( 200 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
     }
-    cout << "Done, shutting down" << endl;
+    std::cout << "Done, shutting down" << std::endl;
 }
-catch ( exception& e )
+
+void nTorrentLogic::TorrentHandlingLogic::PrintInfo()
 {
-    cerr << "Exception occurred: " << e.what() << endl;
+    std::cout << "Function coming soon..." << std::endl;
+
 }
