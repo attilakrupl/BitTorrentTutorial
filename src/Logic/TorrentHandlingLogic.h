@@ -11,10 +11,10 @@ namespace nTorrentLogic
     class TorrentHandlingLogic final
     {
         private:
-            std::string mTorrentPath;
+            lt::span<char const*> mTorrentArguments;
 
         public:
-            explicit TorrentHandlingLogic( const std::string& aTorrentPath );
+            explicit TorrentHandlingLogic( const lt::span<char const*>& aTorrentArguments );
             ~TorrentHandlingLogic() = default;
 
         public:

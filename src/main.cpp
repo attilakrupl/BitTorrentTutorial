@@ -12,24 +12,6 @@ using namespace std;
 static const std::vector<std::string> kMenuOptions{ "Begin to download torrent"
                                                   , "Print torrent information" };
 
-namespace
-{
-    [[noreturn]] void print_usage()
-    {
-        std::cerr << R"(usage: dump_torrent torrent-file [options]
-            OPTIONS:
-                --items-limit <count>    set the upper limit of the number of bencode items
-                                         in the torrent file.
-                --depth-limit <count>    set the recursion limit in the bdecoder
-                --show-padfiles          show pad files in file list
-                --max-pieces <count>     set the upper limit on the number of pieces to
-                                         load in the torrent.
-                --max-size <size in MiB> reject files larger than this size limit
-        )";
-        std::exit( 1 );
-    }
-}
-
 void ShowMenuOptions( const std::string& aTorrentPath )
 {
     cout << "You have added the following torrent file: " << endl;
@@ -61,21 +43,24 @@ int AskForChoice()
     return lResponse;
 }
 
-int main( int argc, char const* argv[] )
+int main( int aArgc, char const* aArgv[] )
 try
 {
-    if ( argc != 2 ) {
-        cerr << "Usage: " << argv[0] << " <torrent_file_path>" << endl;
+    if ( aArgc < 2 )
+    {
+        nTorrentUI::TerminalMessages::PrintUsage();
         return 1;
     }
 
-    const std::string lTorrentToDownload = argv[1];
-    
+    span<char const*> lStrippedArguments( aArgv, aArgc );
+                      lStrippedArguments = lStrippedArguments.subspan( 1 );
+    const std::string lTorrentToDownload = lStrippedArguments[0];
+
     ShowMenuOptions( lTorrentToDownload );
 
     const int lChoice = AskForChoice();
 
-    nTorrentLogic::TorrentHandlingLogic lTorrentHandlingLogic( lTorrentToDownload );
+    nTorrentLogic::TorrentHandlingLogic lTorrentHandlingLogic( lStrippedArguments );
 
     switch( lChoice )
     {

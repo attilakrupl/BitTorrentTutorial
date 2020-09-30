@@ -23,4 +23,6 @@
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/magnet_uri.hpp>
 
+#include "UI/TerminalMessages.h"
+
 #include "Logic/TorrentHandlingLogic.h"
